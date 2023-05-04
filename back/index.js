@@ -2,7 +2,33 @@ var express     = require('express')
 var app         = express();
 var bodyParser  = require('body-parser');
 const cors = require('cors');
-const db = require('./database')
+const db = require('./database');
+var WebSocket = require('ws');
+var http = require('http');
+
+const wss = new WebSocket.Server({  port: 10001 }, () => {
+    console.log('Servidor iniciado na porta 10001');
+});
+
+wss.on('connection', function connection(ws) {
+    http.get('http://localhost:10000/palavra', (res) => {
+        ws.palavra = res.data;
+        print(ws.palavra);
+    });
+
+    ws.on('message', function incoming(message) {
+        //todo
+    });
+
+    ws.on('close', function close() {
+        //todo
+    });
+
+    ws.on('error', function error(err) {
+      console.log(err);
+      ws.close();
+  });
+});
 
 app.use(bodyParser.urlencoded({
     extended: true

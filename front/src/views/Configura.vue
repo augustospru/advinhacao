@@ -3,7 +3,7 @@ import axios from "axios"
 import { ref } from 'vue';
 import Button from "primevue/button";
 import InputText from 'primevue/inputtext';
-import Listbox from 'primevue/listbox';
+//import Listbox from 'primevue/listbox';
 
 const words = ref([{id: null, word: null, hint: null}]);
 const word = ref({word: null, hint: null});
