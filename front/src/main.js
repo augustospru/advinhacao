@@ -11,3 +11,7 @@ import router from './router'
 const app = createApp(App).use(router)
 app.use(PrimeVue)
 app.mount("#app")
+
+import { io } from "socket.io-client";
+export const socket = io('ws://localhost:10000');
+socket.on('connect', () => { console.log('Connected to ws server'); });

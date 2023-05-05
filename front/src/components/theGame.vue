@@ -3,14 +3,15 @@ import { ref } from 'vue';
 import Button from "primevue/button";
 import InputText from 'primevue/inputtext';
 
-const character = ref("a");
-character.value = null;
-let count = ref(0);
-let answer = [{value: null, discovered:false}];
-let listCharacters =  [];
+let answer = {};
+const characterTried  = ref(false);
 let lose = ref(false);
 let win = ref(false);
-const characterTried  = ref(false);
+const character = ref("a");
+character.value = null;
+let listCharacters =  [];
+let count = ref(0);
+count = ref(props.word.length + 3);
 
 const props = defineProps({
   word: {
@@ -24,14 +25,14 @@ const props = defineProps({
 });
 
 // Realized attemptives
-answer.pop();
+/*answer.pop();
 props.word.split('').forEach(element => {
   answer.push({value: element, discovered:false})
 });
-count = ref(props.word.length + 3);
+*/
 
 // Testing characters
-const sendCharacter = (()  => {
+/*const sendCharacter = (()  => {
   let hasAtLeastOne = false;
   let discoveredAll = true;
 
@@ -59,7 +60,19 @@ const sendCharacter = (()  => {
     character.value = null;
   }
 
-})
+})*/
+import { socket } from '../main.js';
+const sendCharacter = () => {
+  if (listCharacters.find(element => element === character.value)) { characterTried.value = true }
+  else {
+    characterTried.value = false;
+    listCharacters.push(character.value);
+    socket.emit('temptative', { char: character.value });
+  }
+}
+socket.on('word', (msg) => {
+    answer = msg.word;
+});
 
 </script>
 
@@ -68,10 +81,7 @@ const sendCharacter = (()  => {
   <h2>dica: {{ hint }}</h2>
   
   <h2>
-      <span v-for="element in answer">
-        <span v-if="element.discovered">{{ element.value }}</span>
-        <span v-else>_ </span>
-      </span>
+      <span> {{ answer }} </span>
   </h2>
 
   <div>
@@ -82,7 +92,7 @@ const sendCharacter = (()  => {
   </div>
   
   <div>
-    <span v-for="character in listCharacters">
+    <span v-for="character in listCharacters" :key="character">
       <span>{{ character }}, </span>
     </span>
   </div>

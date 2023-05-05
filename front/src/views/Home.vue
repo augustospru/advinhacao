@@ -1,13 +1,13 @@
 <script setup>
 import HelloWorld from '../components/HelloWorld.vue'
 import TheGame from '../components/theGame.vue'
-import axios from "axios"
 import { ref } from 'vue';
 
 const word = ref({word: null, hint: null})
 
-axios.get("http://localhost:4000/palavra").then((res) => word.value = res.data)
-
+//ws client
+import { socket } from '../main.js'
+socket.on('init', (msg) => { word.value = msg; });
 </script>
 
 <template>
