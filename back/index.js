@@ -1,37 +1,65 @@
+// websockets server
+const axios = require("axios");
+const io = require("socket.io")(10000, {
+  cors: {
+    origin: '*'
+  }
+});
+
+console.log("Servidor WS iniciado na porta 10000");
+
+io.on('connection', (socket) => {
+  console.log(socket.id + ' user connected');
+  axios.request('http://localhost:4000/palavra').then((response) => {
+      console.log(response.data);
+
+      socket.nchar = response.data.word.length;
+      socket.word = response.data.word.toLowerCase();
+      socket.temptatives = socket.nchar+3;
+      socket.state = `[_${",_".repeat(socket.nchar-1)}]`;
+
+      socket.emit('init',
+      { 
+          'word': socket.state + ',' + socket.temptatives, 
+          'hint': response.data.hint
+      });
+  });
+
+  socket.on('temptative', (msg) => {
+      temptative = msg.char.toLowerCase();
+      positions = [];
+      i = -1;
+      while((i=socket.word.indexOf(temptative,i+1)) >= 0) positions.push(i);
+      //console.log(positions);
+
+      if (positions.length == 0) { socket.temptatives--; }
+      else { 
+          positions.forEach(position => {
+              socket.state = socket.state.substring(0, 2*position+1) + temptative + socket.state.substring(2*position+2);
+          });
+      }
+      //console.log({'word': socket.state + ',' + socket.temptatives});
+      socket.emit('word', {'word': socket.state + ',' + socket.temptatives});
+  });
+
+  socket.on('error', (err) =>
+      console.log(err)
+  );
+
+  socket.on('disconnect', () =>
+      console.log('Connection with' + socket.id + ' closed')
+  );
+})
+
+// rest server
 var express     = require('express')
 var app         = express();
 var bodyParser  = require('body-parser');
 const cors = require('cors');
 const db = require('./database');
-var WebSocket = require('ws');
-var http = require('http');
-
-const wss = new WebSocket.Server({  port: 10001 }, () => {
-    console.log('Servidor iniciado na porta 10001');
-});
-
-wss.on('connection', function connection(ws) {
-    http.get('http://localhost:10000/palavra', (res) => {
-        ws.palavra = res.data;
-        print(ws.palavra);
-    });
-
-    ws.on('message', function incoming(message) {
-        //todo
-    });
-
-    ws.on('close', function close() {
-        //todo
-    });
-
-    ws.on('error', function error(err) {
-      console.log(err);
-      ws.close();
-  });
-});
 
 app.use(bodyParser.urlencoded({
-    extended: true
+  extended: true
 }));
 
 app.use(cors({
@@ -72,8 +100,6 @@ app.get(/^(.+)$/, function (req, res) {
   }    
 })
 
-app.listen(10000, function(){
-  console.log('SERVIDOR WEB na porta 10000');
+app.listen(4000, function(){
+  console.log('Servidor iniciado na porta 4000');
 });
-
-

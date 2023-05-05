@@ -8,16 +8,16 @@ import InputText from 'primevue/inputtext';
 const words = ref([{id: null, word: null, hint: null}]);
 const word = ref({word: null, hint: null});
 
-axios.get("http://localhost:10000/lista").then((res) => words.value = res.data);
+axios.get("http://localhost:4000/lista").then((res) => words.value = res.data);
 
 const createRecord = (()  => {
-    axios.post("http://localhost:10000/add", {word: word.value.word.toLowerCase(), hint: word.value.hint}, {headers: {'content-type': 'application/x-www-form-urlencoded'}})
+    axios.post("http://localhost:4000/add", {word: word.value.word.toLowerCase(), hint: word.value.hint}, {headers: {'content-type': 'application/x-www-form-urlencoded'}})
         .then((res) => words.value.push(res.data));
     word.value = {word: null, hint: null}
 })
 const deleteRecord = ((element)  => {
-    axios.post("http://localhost:10000/remove", {id: element._id}, {headers: {'content-type': 'application/x-www-form-urlencoded'}})
-        .then(() => axios.get("http://localhost:10000/lista").then((res) => words.value = res.data));
+    axios.post("http://localhost:4000/remove", {id: element._id}, {headers: {'content-type': 'application/x-www-form-urlencoded'}})
+        .then(() => axios.get("http://localhost:4000/lista").then((res) => words.value = res.data));
 })
 
 </script>

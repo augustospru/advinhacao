@@ -23,12 +23,14 @@ const props = defineProps({
   }
 });
 
+// Realized attemptives
 answer.pop();
 props.word.split('').forEach(element => {
   answer.push({value: element, discovered:false})
 });
 count = ref(props.word.length + 3);
 
+// Testing characters
 const sendCharacter = (()  => {
   let hasAtLeastOne = false;
   let discoveredAll = true;

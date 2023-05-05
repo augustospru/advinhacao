@@ -6,7 +6,7 @@ import { ref } from 'vue';
 
 const word = ref({word: null, hint: null})
 
-axios.get("http://localhost:10000/palavra").then((res) => word.value = res.data)
+axios.get("http://localhost:4000/palavra").then((res) => word.value = res.data)
 
 </script>
 
