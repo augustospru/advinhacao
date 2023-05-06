@@ -3,7 +3,6 @@ import { ref } from 'vue';
 import Button from "primevue/button";
 import InputText from 'primevue/inputtext';
 
-let answer = {};
 const characterTried  = ref(false);
 let lose = ref(false);
 let win = ref(false);
@@ -11,7 +10,11 @@ const character = ref("a");
 character.value = null;
 let listCharacters =  [];
 let count = ref(0);
-count = ref(props.word.length + 3);
+count.value = parseInt(props.word.slice(props.word.indexOf("],")+2));
+console.log(count.value);
+let answer = ref({});
+answer.value = props.word.slice(1, props.word.indexOf("],"));
+console.log(answer.value);
 
 const props = defineProps({
   word: {
@@ -24,43 +27,6 @@ const props = defineProps({
   }
 });
 
-// Realized attemptives
-/*answer.pop();
-props.word.split('').forEach(element => {
-  answer.push({value: element, discovered:false})
-});
-*/
-
-// Testing characters
-/*const sendCharacter = (()  => {
-  let hasAtLeastOne = false;
-  let discoveredAll = true;
-
-  character.value = character.value.toLowerCase();
-
-  if(listCharacters.find(element => element === character.value)){characterTried.value = true}
-
-  else{
-    characterTried.value = false;
-
-    listCharacters.push(character.value);
-
-    answer.forEach(element => {
-      if (element.value === character.value)
-      {
-        element.discovered = true;
-        hasAtLeastOne = true;
-      }
-      if (!element.discovered) {discoveredAll = false};
-    })
-
-    if (!hasAtLeastOne) {count.value--};
-    if(!count.value) {lose = true};
-    if(discoveredAll) {win = true};
-    character.value = null;
-  }
-
-})*/
 import { socket } from '../main.js';
 const sendCharacter = () => {
   if (listCharacters.find(element => element === character.value)) { characterTried.value = true }
@@ -71,7 +37,19 @@ const sendCharacter = () => {
   }
 }
 socket.on('word', (msg) => {
-    answer = msg.word;
+  const split = msg.word.indexOf("],")
+  answer.value = msg.word.slice(1, split)
+  count.value = parseInt(msg.word.slice(split+2));
+  if (answer.value.match('_') <= 0) {
+    win.value = true;
+    lose.value = false;
+  } else if (count.value <= 0) {
+    win.value = false;
+    lose.value = true;
+  } else {
+    win.value = false;
+    lose.value = false;
+  }
 });
 
 </script>
