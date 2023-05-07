@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import Button from "primevue/button";
 import InputText from 'primevue/inputtext';
+import { socket } from '../main.js';
 
 const characterTried  = ref(false);
 let lose = ref(false);
@@ -27,14 +28,14 @@ const props = defineProps({
   }
 });
 
-import { socket } from '../main.js';
 const sendCharacter = () => {
   if (listCharacters.find(element => element === character.value)) { characterTried.value = true }
-  else {
+  else if(character.value) {
     characterTried.value = false;
     listCharacters.push(character.value);
     socket.emit('temptative', { char: character.value });
   }
+  character.value = null;
 }
 socket.on('word', (msg) => {
   const split = msg.word.indexOf("],")
@@ -51,6 +52,8 @@ socket.on('word', (msg) => {
     lose.value = false;
   }
 });
+
+const reloadPage = () => {window.location.reload();};
 
 </script>
 
@@ -77,6 +80,7 @@ socket.on('word', (msg) => {
   <div> 
     <h2 v-if="win">Voce ganhou! 🥳</h2>
     <h2 v-if="lose">Voce perdeu!</h2>
+    <Button v-if="win || lose" label="Novo jogo" v-on:click="reloadPage"/>
     <h2 v-if="characterTried">Character repetido</h2>
   </div>
 
