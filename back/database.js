@@ -20,8 +20,10 @@ async function getAll() {
 async function getOneRandom() {
     const db = await connect();
     const results = await db.collection("advinhacao").find().toArray();
-    const count = await db.collection("advinhacao").count()
-    const rng = Math.floor(Math.random() * count)
+    //console.log(results);
+    //console.log(results.length);
+    const count = results.length; //await db.collection("advinhacao").count();
+    const rng = Math.floor(Math.random() * count);
     return results[rng];
 }
 
